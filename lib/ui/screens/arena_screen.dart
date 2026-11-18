@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -33,6 +34,7 @@ class _ArenaScreenState extends State<ArenaScreen> with SingleTickerProviderStat
   int? _aimSkillIndex;
   bool _shopOpen = false;
   bool _matchEndedHandled = false;
+  final Map<String, ui.Image> _heroPortraits = {};
 
   final Set<LogicalKeyboardKey> _pressedKeys = {};
   final FocusNode _focusNode = FocusNode();
@@ -48,7 +50,24 @@ class _ArenaScreenState extends State<ArenaScreen> with SingleTickerProviderStat
       mode: widget.mode,
       playerHeroDef: HeroCatalog.byId(widget.profile.selectedHeroId),
     );
+    _loadHeroPortraits();
     _ticker = createTicker(_onTick)..start();
+  }
+
+  Future<void> _loadHeroPortraits() async {
+    for (final hero in HeroCatalog.heroes) {
+      try {
+        final data = await rootBundle.load(hero.portraitAsset);
+        final codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
+        final frame = await codec.getNextFrame();
+        if (mounted) {
+          _heroPortraits[hero.id] = frame.image;
+        }
+      } catch (_) {
+        // Fallback vector portrait renders cleanly if asset load fails in tests.
+      }
+    }
+    if (mounted) setState(() {});
   }
 
   void _onTick(Duration elapsed) {
@@ -168,102 +187,157 @@ class _ArenaScreenState extends State<ArenaScreen> with SingleTickerProviderStat
           }
         }
       },
-      child: Scaffold(
-        backgroundColor: const Color(0xFF0A0E1A),
-        body: SafeArea(
-          child: Stack(
-            children: [
-              // World Viewport
-              Positioned.fill(
-                child: CustomPaint(
-                  painter: ArenaPainter(
-                    engine: _engine,
-                    activeAimDir: _aimDir,
-                    activeAimSkillIndex: _aimSkillIndex,
-                  ),
-                ),
-              ),
-
-              // Top-Left Minimap
-              Positioned(
-                left: 12,
-                top: 10,
-                child: SizedBox(
-                  width: 138,
-                  height: 82,
-                  child: CustomPaint(painter: MinimapPainter(engine: _engine)),
-                ),
-              ),
-
-              // Top-Center Match Scoreboard
-              Positioned(
-                top: 10,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0F172A).withValues(alpha: 0.88),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Colors.white12),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '$blueKills',
-                          style: const TextStyle(color: Color(0xFF38BDF8), fontWeight: FontWeight.w900, fontSize: 16),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8),
-                          child: Text('VS', style: TextStyle(color: Colors.white54, fontSize: 11)),
-                        ),
-                        Text(
-                          '$redKills',
-                          style: const TextStyle(color: Color(0xFFF43F5E), fontWeight: FontWeight.w900, fontSize: 16),
-                        ),
-                        const SizedBox(width: 14),
-                        Text(
-                          _formatTime(_engine.matchTime),
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(width: 14),
-                        Text(
-                          'K:${p.kills} D:${p.deaths}',
-                          style: const TextStyle(color: Color(0xFFFACC15), fontSize: 12, fontWeight: FontWeight.bold),
-                        ),
-                      ],
+      child: Directionality(
+        textDirection: TextDirection.ltr,
+        child: Scaffold(
+          backgroundColor: const Color(0xFF0A0E1A),
+          body: SafeArea(
+            child: Stack(
+              children: [
+                // World Viewport
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: ArenaPainter(
+                      engine: _engine,
+                      activeAimDir: _aimDir,
+                      activeAimSkillIndex: _aimSkillIndex,
+                      heroPortraits: _heroPortraits,
                     ),
                   ),
                 ),
-              ),
 
-              // Top-Right Shop & Exit buttons
-              Positioned(
-                top: 10,
-                right: 12,
-                child: Row(
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () => setState(() => _shopOpen = !_shopOpen),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1E293B).withValues(alpha: 0.92),
-                        foregroundColor: const Color(0xFFFACC15),
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                // Unified Non-Overlapping Top HUD Row
+                Positioned(
+                  top: 8,
+                  left: 10,
+                  right: 10,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 116,
+                        height: 68,
+                        child: CustomPaint(painter: MinimapPainter(engine: _engine)),
                       ),
-                      icon: const Icon(Icons.shopping_bag, size: 17),
-                      label: Text('${p.gold}g', style: const TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: IconButton.styleFrom(backgroundColor: Colors.black54),
-                      icon: const Icon(Icons.close, color: Colors.white70),
-                    ),
-                  ],
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0F172A).withValues(alpha: 0.88),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white12),
+                        ),
+                        child: Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.asset(
+                                p.def.portraitAsset,
+                                width: 32,
+                                height: 32,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, _, _) => Container(
+                                  width: 32,
+                                  height: 32,
+                                  color: p.def.primaryColor,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            SizedBox(
+                              width: 64,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Lv.${p.level}',
+                                    style: const TextStyle(color: Color(0xFFFACC15), fontSize: 10, fontWeight: FontWeight.w900),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(3),
+                                    child: LinearProgressIndicator(
+                                      value: (p.hp / p.maxHp).clamp(0.0, 1.0),
+                                      minHeight: 5,
+                                      backgroundColor: Colors.black54,
+                                      valueColor: const AlwaysStoppedAnimation(Color(0xFF10B981)),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(3),
+                                    child: LinearProgressIndicator(
+                                      value: (p.mana / p.maxMana).clamp(0.0, 1.0),
+                                      minHeight: 4,
+                                      backgroundColor: Colors.black54,
+                                      valueColor: const AlwaysStoppedAnimation(Color(0xFF38BDF8)),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Center(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0F172A).withValues(alpha: 0.88),
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(color: Colors.white12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '$blueKills',
+                                  style: const TextStyle(color: Color(0xFF38BDF8), fontWeight: FontWeight.w900, fontSize: 15),
+                                ),
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 6),
+                                  child: Text('VS', style: TextStyle(color: Colors.white54, fontSize: 10)),
+                                ),
+                                Text(
+                                  '$redKills',
+                                  style: const TextStyle(color: Color(0xFFF43F5E), fontWeight: FontWeight.w900, fontSize: 15),
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  _formatTime(_engine.matchTime),
+                                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  'K:${p.kills} D:${p.deaths}',
+                                  style: const TextStyle(color: Color(0xFFFACC15), fontSize: 11, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () => setState(() => _shopOpen = !_shopOpen),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1E293B).withValues(alpha: 0.92),
+                          foregroundColor: const Color(0xFFFACC15),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        ),
+                        icon: const Icon(Icons.shopping_bag, size: 16),
+                        label: Text('${p.gold}g', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      ),
+                      const SizedBox(width: 6),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: IconButton.styleFrom(backgroundColor: Colors.black54),
+                        icon: const Icon(Icons.close, color: Colors.white70),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
 
               // Center Announcement Banner
               if (_engine.announcementEn != null)
@@ -322,6 +396,7 @@ class _ArenaScreenState extends State<ArenaScreen> with SingleTickerProviderStat
                       children: [
                         SkillAimButton(
                           label: L10n.tr('heal_spell', isAr),
+                          icon: Icons.favorite,
                           cooldownRemaining: p.healSpellCooldown,
                           maxCooldown: 18.0,
                           hasEnoughMana: true,
@@ -361,11 +436,12 @@ class _ArenaScreenState extends State<ArenaScreen> with SingleTickerProviderStat
                   children: [
                     SkillAimButton(
                       label: 'S1',
+                      icon: p.def.skills[0].icon,
                       cooldownRemaining: p.skillCooldowns[0],
                       maxCooldown: p.def.skills[0].cooldown,
                       hasEnoughMana: p.mana >= p.def.skills[0].manaCost,
                       color: p.def.skills[0].color,
-                      size: 56,
+                      size: 58,
                       onAimPreview: (dir) => setState(() {
                         _aimDir = dir;
                         _aimSkillIndex = dir == null ? null : 0;
@@ -378,11 +454,12 @@ class _ArenaScreenState extends State<ArenaScreen> with SingleTickerProviderStat
                       children: [
                         SkillAimButton(
                           label: 'ULT',
+                          icon: p.def.skills[2].icon,
                           cooldownRemaining: p.skillCooldowns[2],
                           maxCooldown: p.def.skills[2].cooldown,
                           hasEnoughMana: p.mana >= p.def.skills[2].manaCost,
                           color: p.def.skills[2].color,
-                          size: 62,
+                          size: 64,
                           onAimPreview: (dir) => setState(() {
                             _aimDir = dir;
                             _aimSkillIndex = dir == null ? null : 2;
@@ -392,11 +469,12 @@ class _ArenaScreenState extends State<ArenaScreen> with SingleTickerProviderStat
                         const SizedBox(height: 10),
                         SkillAimButton(
                           label: 'S2',
+                          icon: p.def.skills[1].icon,
                           cooldownRemaining: p.skillCooldowns[1],
                           maxCooldown: p.def.skills[1].cooldown,
                           hasEnoughMana: p.mana >= p.def.skills[1].manaCost,
                           color: p.def.skills[1].color,
-                          size: 56,
+                          size: 58,
                           onAimPreview: (dir) => setState(() {
                             _aimDir = dir;
                             _aimSkillIndex = dir == null ? null : 1;
@@ -424,15 +502,19 @@ class _ArenaScreenState extends State<ArenaScreen> with SingleTickerProviderStat
                             ),
                           ],
                         ),
-                        child: Center(
-                          child: Text(
-                            L10n.tr('attack', isAr),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 15,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.flash_on, color: Colors.white, size: 26),
+                            Text(
+                              L10n.tr('attack', isAr),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 12,
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                       ),
                     ),
@@ -592,6 +674,7 @@ class _ArenaScreenState extends State<ArenaScreen> with SingleTickerProviderStat
             ],
           ),
         ),
+      ),
       ),
     );
   }

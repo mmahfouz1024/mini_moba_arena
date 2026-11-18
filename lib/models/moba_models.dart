@@ -24,6 +24,7 @@ class SkillDef {
   final double slowDuration;
   final bool isMultiShot;
   final Color color;
+  final IconData icon;
 
   const SkillDef({
     required this.id,
@@ -43,6 +44,7 @@ class SkillDef {
     this.slowDuration = 0,
     this.isMultiShot = false,
     required this.color,
+    this.icon = Icons.auto_awesome,
   });
 }
 
@@ -52,6 +54,7 @@ class HeroDef {
   final String nameAr;
   final String titleEn;
   final String titleAr;
+  final String portraitAsset;
   final HeroRole role;
   final Color primaryColor;
   final Color secondaryColor;
@@ -70,6 +73,7 @@ class HeroDef {
     required this.nameAr,
     required this.titleEn,
     required this.titleAr,
+    required this.portraitAsset,
     required this.role,
     required this.primaryColor,
     required this.secondaryColor,
@@ -92,6 +96,7 @@ class HeroCatalog {
       nameAr: 'كايل',
       titleEn: 'Blade Vanguard',
       titleAr: 'طليعة النصل',
+      portraitAsset: 'assets/images/heroes/kael.png',
       role: HeroRole.fighter,
       primaryColor: Color(0xFF3B82F6),
       secondaryColor: Color(0xFF93C5FD),
@@ -117,6 +122,7 @@ class HeroCatalog {
           scaling: 1.15,
           isDash: true,
           color: Color(0xFF38BDF8),
+          icon: Icons.bolt,
         ),
         SkillDef(
           id: 'kael_s2',
@@ -132,6 +138,7 @@ class HeroCatalog {
           scaling: 1.25,
           slowDuration: 1.5,
           color: Color(0xFF60A5FA),
+          icon: Icons.cyclone,
         ),
         SkillDef(
           id: 'kael_ult',
@@ -148,6 +155,7 @@ class HeroCatalog {
           isDash: true,
           stunDuration: 1.1,
           color: Color(0xFFFACC15),
+          icon: Icons.gavel,
         ),
       ],
     ),
@@ -157,6 +165,7 @@ class HeroCatalog {
       nameAr: 'ليرا',
       titleEn: 'Arcane Ember',
       titleAr: 'لهيب السحر',
+      portraitAsset: 'assets/images/heroes/lyra.png',
       role: HeroRole.mage,
       primaryColor: Color(0xFFA855F7),
       secondaryColor: Color(0xFFE9D5FF),
@@ -181,6 +190,7 @@ class HeroCatalog {
           baseDamage: 150,
           scaling: 1.35,
           color: Color(0xFFC084FC),
+          icon: Icons.local_fire_department,
         ),
         SkillDef(
           id: 'lyra_s2',
@@ -196,6 +206,7 @@ class HeroCatalog {
           scaling: 1.1,
           stunDuration: 1.0,
           color: Color(0xFF38BDF8),
+          icon: Icons.ac_unit,
         ),
         SkillDef(
           id: 'lyra_ult',
@@ -211,6 +222,7 @@ class HeroCatalog {
           scaling: 1.8,
           slowDuration: 2.0,
           color: Color(0xFFF43F5E),
+          icon: Icons.flare,
         ),
       ],
     ),
@@ -220,6 +232,7 @@ class HeroCatalog {
       nameAr: 'فيكس',
       titleEn: 'Iron Bulwark',
       titleAr: 'الحصن الحديدي',
+      portraitAsset: 'assets/images/heroes/vex.png',
       role: HeroRole.tank,
       primaryColor: Color(0xFF10B981),
       secondaryColor: Color(0xFFA7F3D0),
@@ -246,6 +259,7 @@ class HeroCatalog {
           isDash: true,
           stunDuration: 1.0,
           color: Color(0xFF34D399),
+          icon: Icons.security,
         ),
         SkillDef(
           id: 'vex_s2',
@@ -261,6 +275,7 @@ class HeroCatalog {
           scaling: 1.0,
           isSelfBuffOrHeal: true,
           color: Color(0xFF6EE7B7),
+          icon: Icons.shield,
         ),
         SkillDef(
           id: 'vex_ult',
@@ -276,6 +291,7 @@ class HeroCatalog {
           scaling: 1.25,
           stunDuration: 1.4,
           color: Color(0xFFF59E0B),
+          icon: Icons.public,
         ),
       ],
     ),
@@ -285,6 +301,7 @@ class HeroCatalog {
       nameAr: 'سيرا',
       titleEn: 'Wind Marksman',
       titleAr: 'رامية الرياح',
+      portraitAsset: 'assets/images/heroes/sera.png',
       role: HeroRole.marksman,
       primaryColor: Color(0xFFF59E0B),
       secondaryColor: Color(0xFFFDE68A),
@@ -309,6 +326,7 @@ class HeroCatalog {
           baseDamage: 165,
           scaling: 1.4,
           color: Color(0xFFFBBF24),
+          icon: Icons.arrow_forward,
         ),
         SkillDef(
           id: 'sera_s2',
@@ -325,6 +343,7 @@ class HeroCatalog {
           isDash: true,
           isSelfBuffOrHeal: true,
           color: Color(0xFF38BDF8),
+          icon: Icons.air,
         ),
         SkillDef(
           id: 'sera_ult',
@@ -341,6 +360,7 @@ class HeroCatalog {
           isMultiShot: true,
           slowDuration: 1.4,
           color: Color(0xFFF97316),
+          icon: Icons.auto_awesome,
         ),
       ],
     ),

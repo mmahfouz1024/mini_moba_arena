@@ -109,12 +109,29 @@ class _HeroSelectScreenState extends State<HeroSelectScreen> {
                 children: [
                   Row(
                     children: [
-                      CircleAvatar(
-                        radius: 26,
-                        backgroundColor: hero.primaryColor,
-                        child: Text(
-                          (isAr ? hero.nameAr : hero.nameEn).substring(0, 1),
-                          style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900),
+                      Container(
+                        width: 62,
+                        height: 62,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: selected ? const Color(0xFFFACC15) : hero.primaryColor,
+                            width: 2,
+                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.asset(
+                            hero.portraitAsset,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, _, _) => CircleAvatar(
+                              backgroundColor: hero.primaryColor,
+                              child: Text(
+                                (isAr ? hero.nameAr : hero.nameEn).substring(0, 1),
+                                style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),

@@ -185,12 +185,32 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     child: Row(
                       children: [
-                        CircleAvatar(
-                          radius: 36,
-                          backgroundColor: activeHero.primaryColor,
-                          child: Text(
-                            (isAr ? activeHero.nameAr : activeHero.nameEn).substring(0, 1),
-                            style: const TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w900),
+                        Container(
+                          width: 78,
+                          height: 78,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: const Color(0xFFFACC15), width: 2.2),
+                            boxShadow: [
+                              BoxShadow(
+                                color: activeHero.primaryColor.withValues(alpha: 0.5),
+                                blurRadius: 12,
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image.asset(
+                              activeHero.portraitAsset,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, _, _) => CircleAvatar(
+                                backgroundColor: activeHero.primaryColor,
+                                child: Text(
+                                  (isAr ? activeHero.nameAr : activeHero.nameEn).substring(0, 1),
+                                  style: const TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w900),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 16),

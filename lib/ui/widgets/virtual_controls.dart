@@ -73,6 +73,7 @@ class _VirtualJoystickState extends State<VirtualJoystick> {
 
 class SkillAimButton extends StatefulWidget {
   final String label;
+  final IconData? icon;
   final double cooldownRemaining;
   final double maxCooldown;
   final bool hasEnoughMana;
@@ -84,6 +85,7 @@ class SkillAimButton extends StatefulWidget {
   const SkillAimButton({
     super.key,
     required this.label,
+    this.icon,
     required this.cooldownRemaining,
     required this.maxCooldown,
     required this.hasEnoughMana,
@@ -158,15 +160,34 @@ class _SkillAimButtonState extends State<SkillAimButton> {
                     : null,
               ),
               child: Center(
-                child: Text(
-                  widget.label,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: widget.hasEnoughMana ? Colors.white : Colors.white38,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
+                child: widget.icon != null
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            widget.icon,
+                            color: widget.hasEnoughMana ? Colors.white : Colors.white38,
+                            size: widget.size * 0.36,
+                          ),
+                          Text(
+                            widget.label,
+                            style: TextStyle(
+                              color: widget.hasEnoughMana ? Colors.white : Colors.white38,
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ],
+                      )
+                    : Text(
+                        widget.label,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: widget.hasEnoughMana ? Colors.white : Colors.white38,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
               ),
             ),
             if (cdRatio > 0)

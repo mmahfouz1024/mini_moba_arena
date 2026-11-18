@@ -1,9 +1,11 @@
 import 'dart:math';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mini_moba_arena/engine/moba_arena_engine.dart';
 import 'package:mini_moba_arena/main.dart';
 import 'package:mini_moba_arena/models/moba_models.dart';
+import 'package:mini_moba_arena/ui/screens/arena_screen.dart';
 
 void main() {
   group('MobaArenaEngine', () {
@@ -75,5 +77,24 @@ void main() {
     await tester.pumpWidget(const LegendsArenaApp());
     await tester.pumpAndSettle();
     expect(find.text('ساحة الأساطير'), findsOneWidget);
+  });
+
+  testWidgets('ArenaScreen renders landscape HUD without overflow', (tester) async {
+    tester.view.physicalSize = const Size(820, 410);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: ArenaScreen(
+          profile: PlayerMetaProfile(isArabic: true),
+          mode: ArenaMode.arena3v3,
+          onSaveProfile: () async {},
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('VS'), findsOneWidget);
+    expect(find.text('هجوم'), findsOneWidget);
   });
 }

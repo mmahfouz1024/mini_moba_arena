@@ -60,6 +60,7 @@ class HeroEntity {
   double shieldAmount = 0;
   double recallTimer = 0;
   double turretAggroTimer = 0;
+  double walkPhase = 0;
   String? lastHitByHeroUid;
   double lastHitTimer = 0;
 
@@ -377,7 +378,7 @@ class MobaArenaEngine {
       def: playerHeroDef,
       team: Team.blue,
       isPlayer: true,
-      pos: Vec2(280, 1140),
+      pos: Vec2(395, 1085),
       facingAngle: -0.45,
     );
     heroes.add(player);
@@ -575,12 +576,14 @@ class MobaArenaEngine {
       final len = sqrt(playerMoveInput.x * playerMoveInput.x + playerMoveInput.y * playerMoveInput.y);
       if (len > 0.08) {
         hero.recallTimer = 0;
+        hero.walkPhase += dt * 10.0;
         final dir = Vec2(playerMoveInput.x / len, playerMoveInput.y / len);
         final speed = _effectiveSpeed(hero) * min(1.0, len);
         hero.facingAngle = atan2(dir.y, dir.x);
         _moveWithCollisions(hero.pos, dir.x * speed * dt, dir.y * speed * dt, 24);
       }
     } else {
+      hero.walkPhase += dt * 8.0;
       _updateBotHero(hero, dt);
     }
   }
